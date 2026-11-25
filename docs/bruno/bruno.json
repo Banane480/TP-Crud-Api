@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "API Jeux Vidéo",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

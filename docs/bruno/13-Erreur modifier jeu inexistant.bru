@@ -1,0 +1,31 @@
+meta {
+  name: Erreur - Modifier un jeu inexistant
+  type: http
+  seq: 13
+}
+
+put {
+  url: {{baseUrl}}/api/games/99999
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Jeu fantôme",
+    "editor": "Inconnu",
+    "releaseYear": 2020,
+    "genre": "RPG",
+    "rating": 7.5
+  }
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Erreur - Année en texte
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/games
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Test Année",
+    "editor": "Test",
+    "releaseYear": "2022",
+    "genre": "Action",
+    "rating": 8
+  }
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

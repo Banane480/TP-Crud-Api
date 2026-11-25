@@ -1,0 +1,31 @@
+meta {
+  name: Modifier un jeu
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/games/{{gameId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Elden Ring: Shadow of the Erdtree",
+    "editor": "Bandai Namco",
+    "releaseYear": 2024,
+    "genre": "Action-RPG",
+    "rating": 9.8
+  }
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
