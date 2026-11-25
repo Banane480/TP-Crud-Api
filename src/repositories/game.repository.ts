@@ -10,7 +10,7 @@ interface GameRow {
     rating: number;
 }
 
-function mapRowToGame(row: GameRow): Game {
+function toGame(row: GameRow): Game {
     return new Game(
         row.id,
         row.title,
@@ -21,50 +21,45 @@ function mapRowToGame(row: GameRow): Game {
     );
 }
 
-const findAllStmt = db.prepare<[], GameRow>('SELECT * FROM games ORDER BY id ASC');
-const findByIdStmt = db.prepare<[number], GameRow>('SELECT * FROM games WHERE id = ?');
-const insertStmt = db.prepare<CreateGameInput>(
-    'INSERT INTO games (title, editor, release_year, genre, rating) VALUES (@title, @editor, @releaseYear, @genre, @rating)'
-);
-const updateStmt = db.prepare<CreateGameInput & {id: number}>(
-    'UPDATE games SET title = @title, editor = @editor, release_year = @releaseYear, genre = @genre, rating = @rating WHERE id = @id'
-);
-const deleteStmt = db.prepare<[number]>('DELETE FROM games WHERE id = ?');
-
-/**
- * Gère les requêtes SQL liées à la table `games`.
- */
 export const gameRepository = {
     findAll(): Game[] {
-        const rows = findAllStmt.all();
-        return rows.map(mapRowToGame);
+        const rows = db.prepare('SELECT * FROM games ORDER BY id ASC').all() as GameRow[];
+        return rows.map(toGame);
     },
 
     findById(id: number): Game | undefined {
-        const row = findByIdStmt.get(id);
-        return row ? mapRowToGame(row) : undefined;
+        const row = db.prepare('SELECT * FROM games WHERE id = ?').get(id) as GameRow | undefined;
+        if (!row) {
+            return undefined;
+        }
+        return toGame(row);
     },
 
     create(input: CreateGameInput): Game {
-        const info = insertStmt.run(input);
-        const created = findByIdStmt.get(Number(info.lastInsertRowid));
-        if (!created) {
-            throw new Error('Impossible de récupérer le jeu créé');
-        }
-        return mapRowToGame(created);
+        const stmt = db.prepare(
+            'INSERT INTO games (title, editor, release_year, genre, rating) VALUES (@title, @editor, @releaseYear, @genre, @rating)'
+        );
+        const result = stmt.run(input);
+        const id = Number(result.lastInsertRowid);
+
+        return new Game(id, input.title, input.editor, input.releaseYear, input.genre, input.rating);
     },
 
     update(id: number, input: CreateGameInput): Game | undefined {
-        const info = updateStmt.run({...input, id});
-        if (info.changes === 0) {
+        const stmt = db.prepare(
+            'UPDATE games SET title = @title, editor = @editor, release_year = @releaseYear, genre = @genre, rating = @rating WHERE id = @id'
+        );
+        const result = stmt.run({...input, id});
+
+        if (result.changes === 0) {
             return undefined;
         }
-        const updated = findByIdStmt.get(id);
-        return updated ? mapRowToGame(updated) : undefined;
+
+        return new Game(id, input.title, input.editor, input.releaseYear, input.genre, input.rating);
     },
 
     delete(id: number): boolean {
-        const info = deleteStmt.run(id);
-        return info.changes > 0;
+        const result = db.prepare('DELETE FROM games WHERE id = ?').run(id);
+        return result.changes > 0;
     },
 };

@@ -1,6 +1,3 @@
-/**
- * Représente un jeu vidéo enregistré en base de données.
- */
 export class Game {
     id: number;
     title: string;
@@ -26,9 +23,6 @@ export class Game {
     }
 }
 
-/**
- * Données attendues pour créer ou modifier un jeu vidéo (sans l'identifiant généré par SQLite).
- */
 export interface CreateGameInput {
     title: string;
     editor: string;
