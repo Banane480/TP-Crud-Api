@@ -1,0 +1,151 @@
+openapi: 3.0.3
+
+info:
+  title: API Jeux Vidéo
+  version: 1.0.0
+  description: API de gestion d'une collection de jeux vidéo.
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/games:
+    get:
+      summary: Récupérer tous les jeux
+      responses:
+        '200':
+          description: Liste des jeux récupérée avec succès.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+        '500':
+          description: Erreur interne du serveur.
+    post:
+      summary: Ajouter un jeu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameInput'
+      responses:
+        '201':
+          description: Jeu créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Données invalides.
+        '500':
+          description: Erreur interne du serveur.
+
+  /api/games/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Récupérer un jeu
+      responses:
+        '200':
+          description: Jeu trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Identifiant invalide.
+        '404':
+          description: Jeu introuvable.
+        '500':
+          description: Erreur interne du serveur.
+    put:
+      summary: Modifier un jeu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameInput'
+      responses:
+        '200':
+          description: Jeu modifié.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '400':
+          description: Identifiant ou données invalides.
+        '404':
+          description: Jeu introuvable.
+        '500':
+          description: Erreur interne du serveur.
+    delete:
+      summary: Supprimer un jeu
+      responses:
+        '204':
+          description: Jeu supprimé.
+        '400':
+          description: Identifiant invalide.
+        '404':
+          description: Jeu introuvable.
+        '500':
+          description: Erreur interne du serveur.
+
+components:
+  schemas:
+    Game:
+      type: object
+      required:
+        - id
+        - title
+        - editor
+        - releaseYear
+        - genre
+        - rating
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        editor:
+          type: string
+        releaseYear:
+          type: integer
+          minimum: 1950
+          maximum: 2100
+        genre:
+          type: string
+        rating:
+          type: number
+          minimum: 0
+          maximum: 10
+    CreateGameInput:
+      type: object
+      required:
+        - title
+        - editor
+        - releaseYear
+        - genre
+        - rating
+      properties:
+        title:
+          type: string
+        editor:
+          type: string
+        releaseYear:
+          type: integer
+          minimum: 1950
+          maximum: 2100
+        genre:
+          type: string
+        rating:
+          type: number
+          minimum: 0
+          maximum: 10
